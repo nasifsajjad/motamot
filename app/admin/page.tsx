@@ -6,6 +6,21 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
+export interface Comment {
+  id: string;
+  body: string;
+  author_id: string;
+  created_at: string;
+  users: {
+    display_name: string;
+  };
+}
+
+// In app/admin/page.tsx
+interface AdminDashboardProps {
+  initialComments: Comment[]; // Change any[] to Comment[]
+}
+
 interface FlaggedItem {
   id: string;
   title?: string;
@@ -14,7 +29,7 @@ interface FlaggedItem {
   reports: { count: number }[];
 }
 
-const AdminDashboard = () => {
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ initialComments }) => {
   const [posts, setPosts] = useState<FlaggedItem[]>([]);
   const [comments, setComments] = useState<FlaggedItem[]>([]);
   const [loading, setLoading] = useState(true);

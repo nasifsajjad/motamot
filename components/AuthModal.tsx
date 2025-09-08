@@ -106,7 +106,7 @@ const AuthModal = () => {
           {isSignUp ? (
             <span>Already have an account? <button type="button" onClick={() => setIsSignUp(false)} className="text-blue-600 hover:underline">Sign In</button></span>
           ) : (
-            <span>Don't have an account? <button type="button" onClick={() => setIsSignUp(true)} className="text-blue-600 hover:underline">Sign Up</button></span>
+            <span>Don&apos;t have an account? <button type="button" onClick={() => setIsSignUp(true)} className="text-blue-600 hover:underline">Sign Up</button></span>
           )}
         </div>
       </div>

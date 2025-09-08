@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Post } from '@/types';
+import { Post, Comment } from '@/types';
 import { motion } from 'framer-motion';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
@@ -12,7 +12,7 @@ import CommentForm from './CommentForm';
 
 interface PostContentProps {
   post: Post;
-  initialComments: any[]; // Consider creating a specific type for comments
+  initialComments: Comment[];
 }
 
 const PostContent: React.FC<PostContentProps> = ({ post, initialComments }) => {
@@ -49,13 +49,14 @@ const PostContent: React.FC<PostContentProps> = ({ post, initialComments }) => {
         return;
       }
       
-      // Update the UI with the new netVotes from the API response
       const result = await response.json();
       setNetVotes(result.netVotes);
 
-    } catch (error) {
-      console.error('Failed to cast vote:', error);
-      alert('Failed to cast vote. Please try again.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('Failed to cast vote:', err);
+        alert('Failed to cast vote. Please try again.');
+      }
     }
   };
   
@@ -84,9 +85,11 @@ const PostContent: React.FC<PostContentProps> = ({ post, initialComments }) => {
         setCurrentContent(result.translatedText);
         setIsTranslated(true);
 
-      } catch (error) {
-        console.error('Failed to translate:', error);
-        alert('Failed to translate post. Please try again.');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+            console.error('Failed to translate:', err);
+            alert('Failed to translate post. Please try again.');
+        }
       } finally {
         setIsLoadingTranslation(false);
       }

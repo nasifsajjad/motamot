@@ -1,9 +1,10 @@
 // components/CommentList.tsx
 import React from 'react';
 import Comment from './Comment';
+import { Comment as CommentType } from '@/types';
 
 interface CommentListProps {
-  comments: any[]; // Use a more specific type if possible
+  comments: CommentType[];
 }
 
 const CommentList: React.FC<CommentListProps> = ({ comments }) => {

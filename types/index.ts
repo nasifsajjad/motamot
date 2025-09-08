@@ -1,4 +1,9 @@
 // types/index.ts
+export interface User {
+  id: string;
+  display_name: string | null;
+}
+
 export interface Post {
   id: string;
   slug: string;
@@ -12,10 +17,15 @@ export interface Post {
   updated_at: string;
   published: boolean;
   net_votes: number;
-  // We'll add the user details here as a nested object from our Supabase join
-  users?: {
-    display_name: string;
-  };
+  users?: User; // Updated to use the new User type
+}
+
+export interface Comment {
+  id: string;
+  body: string;
+  author_id: string;
+  created_at: string;
+  users: User; // Updated to use the new User type
 }
 
 export interface NewPostFormData {

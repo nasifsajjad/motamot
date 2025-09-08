@@ -43,10 +43,13 @@ const CreatePostForm = () => {
         throw new Error(result.error || 'Something went wrong.');
       }
 
-      // Redirect to the new post page
       router.push(`/posts/${result.slug}`);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred.');
+      }
     } finally {
       setLoading(false);
     }
