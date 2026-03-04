@@ -4,12 +4,18 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import type { Post } from "@/types";
+import type { Post, AuthorSnippet } from "@/types";
 import { useLang } from "@/hooks/useLang";
 
 interface PostCardProps {
   post: Post;
   index?: number;
+}
+
+function getAuthor(author: Post["author"]): AuthorSnippet {
+  if (!author) return {};
+  if (Array.isArray(author)) return author[0] ?? {};
+  return author;
 }
 
 const typeColors = {
@@ -18,7 +24,9 @@ const typeColors = {
 };
 
 export function PostCard({ post, index = 0 }: PostCardProps) {
-  const { t, lang } = useLang();
+  const { t } = useLang();
+  const author = getAuthor(post.author);
+  const authorName = author.displayName ?? author.display_name ?? t("anonymous");
 
   return (
     <motion.article
@@ -74,12 +82,11 @@ export function PostCard({ post, index = 0 }: PostCardProps) {
         <span className="text-xs text-ink-400">
           {t("by")}{" "}
           <span className="font-medium text-ink-600 dark:text-ink-300">
-            {post.author?.displayName ?? t("anonymous")}
+            {authorName}
           </span>
         </span>
 
         <div className="ml-auto flex items-center gap-3">
-          {/* Votes (read-only on card) */}
           <div className="flex items-center gap-1 text-sm">
             <ArrowBigUp
               className={`w-4 h-4 ${
@@ -104,7 +111,6 @@ export function PostCard({ post, index = 0 }: PostCardProps) {
             />
           </div>
 
-          {/* Comments count */}
           {post.commentsCount !== undefined && (
             <div className="flex items-center gap-1 text-xs text-ink-400">
               <MessageCircle className="w-3.5 h-3.5" />

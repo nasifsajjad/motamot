@@ -64,13 +64,9 @@ export async function GET(req: NextRequest) {
       upvotesCount: p.upvotes_count,
       downvotesCount: p.downvotes_count,
       published: p.published,
-      author: p.users
-        ? {
-            id: (p.users as Record<string, unknown>).id,
-            displayName: (p.users as Record<string, unknown>).display_name,
-            avatarUrl: (p.users as Record<string, unknown>).avatar_url,
-          }
-        : null,
+      author: Array.isArray(p.users)
+        ? p.users[0] ?? null
+        : p.users ?? null,
     }));
 
     return NextResponse.json({
