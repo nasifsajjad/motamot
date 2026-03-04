@@ -44,7 +44,7 @@ export default async function PostPage({ params }: Props) {
     .from("posts")
     .select(`
       id, slug, title, body, excerpt, language, type,
-      created_at, updated_at, published,
+      created_at, updated_at, published, author_id,
       net_votes, upvotes_count, downvotes_count,
       users!author_id (id, display_name, avatar_url)
     `)
@@ -65,6 +65,7 @@ export default async function PostPage({ params }: Props) {
     createdAt: post.created_at,
     updatedAt: post.updated_at,
     published: post.published,
+    authorId: post.author_id,
     netVotes: post.net_votes,
     upvotesCount: post.upvotes_count,
     downvotesCount: post.downvotes_count,
