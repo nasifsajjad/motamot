@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowBigUp, ArrowBigDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLang } from "@/hooks/useLang";
+import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 
 interface VoteButtonsProps {
@@ -33,6 +34,7 @@ export function VoteButtons({
     }
     if (loading) return;
 
+    // Optimistic update
     const newVote = userVote === value ? 0 : value;
     const delta = newVote === 0 ? -value : newVote - (userVote ?? 0);
     setNetVotes((v) => v + delta);
@@ -40,15 +42,33 @@ export function VoteButtons({
     setLoading(true);
 
     try {
+      // Get fresh access token from client-side Supabase
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast.error(t("loginRequired"));
+        setNetVotes(initialNetVotes);
+        setUserVote(initialUserVote);
+        return;
+      }
+
       const res = await fetch(`/api/posts/${postId}/vote`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          // Send the access token explicitly so the server can verify it
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        credentials: "include",
         body: JSON.stringify({ vote: newVote }),
       });
+
       const data = await res.json();
+
       if (!res.ok) {
         toast.error(data.error ?? "Vote failed");
-        // Revert
+        // Revert optimistic update
         setNetVotes(initialNetVotes);
         setUserVote(initialUserVote);
       } else if (data.net_votes !== undefined) {
@@ -56,6 +76,8 @@ export function VoteButtons({
       }
     } catch {
       toast.error("Vote failed");
+      setNetVotes(initialNetVotes);
+      setUserVote(initialUserVote);
     } finally {
       setLoading(false);
     }
@@ -64,9 +86,7 @@ export function VoteButtons({
   const isVertical = orientation === "vertical";
 
   return (
-    <div
-      className={`flex ${isVertical ? "flex-col" : "flex-row"} items-center gap-1`}
-    >
+    <div className={`flex ${isVertical ? "flex-col" : "flex-row"} items-center gap-1`}>
       <motion.button
         onClick={() => handleVote(1)}
         whileTap={{ scale: 0.85 }}
@@ -78,10 +98,7 @@ export function VoteButtons({
             : "hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-400 hover:text-azure-500"
         }`}
       >
-        <ArrowBigUp
-          className="w-5 h-5"
-          fill={userVote === 1 ? "currentColor" : "none"}
-        />
+        <ArrowBigUp className="w-5 h-5" fill={userVote === 1 ? "currentColor" : "none"} />
       </motion.button>
 
       <AnimatePresence mode="popLayout">
@@ -91,11 +108,7 @@ export function VoteButtons({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           className={`text-sm font-semibold tabular-nums min-w-[2rem] text-center ${
-            netVotes > 0
-              ? "text-azure-600"
-              : netVotes < 0
-              ? "text-red-500"
-              : "text-ink-400"
+            netVotes > 0 ? "text-azure-600" : netVotes < 0 ? "text-red-500" : "text-ink-400"
           }`}
         >
           {netVotes}
@@ -113,10 +126,7 @@ export function VoteButtons({
             : "hover:bg-ink-100 dark:hover:bg-ink-800 text-ink-400 hover:text-red-400"
         }`}
       >
-        <ArrowBigDown
-          className="w-5 h-5"
-          fill={userVote === -1 ? "currentColor" : "none"}
-        />
+        <ArrowBigDown className="w-5 h-5" fill={userVote === -1 ? "currentColor" : "none"} />
       </motion.button>
     </div>
   );
