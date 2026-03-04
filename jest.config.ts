@@ -7,7 +7,6 @@ const config: Config = {
   coverageProvider: "v8",
   testEnvironment: "node",
   moduleNameMapper: { "^@/(.*)$": "<rootDir>/src/$1" },
-  setupFilesAfterFramework: [],
 };
 
 export default createJestConfig(config);
