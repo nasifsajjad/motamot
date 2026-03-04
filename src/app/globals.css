@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gradient-hero: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 50%, #fefce8 100%);
+  }
+  .dark {
+    --gradient-hero: linear-gradient(135deg, #0d0f14 0%, #111827 50%, #0d0f14 100%);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    @apply bg-azure-100 text-azure-700;
+  }
+
+  /* Bangla font when lang attribute is bn */
+  [lang="bn"], .font-bangla, .bangla {
+    font-family: var(--font-noto-bangla), system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white dark:bg-ink-800 rounded-2xl border border-ink-100 dark:border-ink-700 shadow-sm;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-azure-600 hover:bg-azure-700 text-white font-medium text-sm transition-all duration-200 active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-transparent hover:bg-ink-50 dark:hover:bg-ink-800 text-ink-600 dark:text-ink-300 font-medium text-sm transition-all duration-200;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-ink-200 dark:border-ink-700 hover:border-azure-400 text-ink-700 dark:text-ink-200 font-medium text-sm transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-ink-200 dark:border-ink-700 bg-white dark:bg-ink-800 px-4 py-3 text-sm text-ink-900 dark:text-ink-50 placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-azure-500 focus:border-transparent transition;
+  }
+
+  .tag {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .skeleton {
+    @apply rounded-lg bg-ink-100 dark:bg-ink-700 animate-skeleton;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-ink-200 dark:bg-ink-700 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-ink-300 dark:bg-ink-600; }
