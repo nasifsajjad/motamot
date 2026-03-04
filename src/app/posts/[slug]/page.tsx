@@ -84,7 +84,7 @@ export default async function PostPage({ params }: Props) {
     url: `${baseUrl}/posts/${post.slug}`,
     author: {
       "@type": "Person",
-      name: (post.users as Record<string,unknown>)?.display_name ?? "Anonymous",
+      name: (post.users as unknown as Record<string,unknown>)?.display_name ?? "Anonymous",
     },
     publisher: {
       "@type": "Organization",

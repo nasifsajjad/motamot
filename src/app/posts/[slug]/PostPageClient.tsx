@@ -94,18 +94,18 @@ export function PostPageClient({ post }: { post: Post }) {
 
           {/* Author */}
           <div className="flex items-center gap-2">
-            {(post.author as Record<string,unknown>)?.avatar_url ? (
+            {(post.author as unknown as Record<string,unknown>)?.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={(post.author as Record<string,unknown>).avatar_url as string} alt="" className="w-7 h-7 rounded-full object-cover" />
+              <img src={(post.author as unknown as Record<string,unknown>).avatar_url as string} alt="" className="w-7 h-7 rounded-full object-cover" />
             ) : (
               <div className="w-7 h-7 rounded-full bg-azure-600 flex items-center justify-center text-white text-xs font-semibold">
-                {((post.author as Record<string,unknown>)?.display_name as string)?.[0]?.toUpperCase() ?? "A"}
+                {((post.author as unknown as Record<string,unknown>)?.display_name as string)?.[0]?.toUpperCase() ?? "A"}
               </div>
             )}
             <span className="text-sm text-ink-500">
               {t("by")}{" "}
               <span className="font-medium text-ink-700 dark:text-ink-200">
-                {(post.author as Record<string,unknown>)?.display_name as string ?? t("anonymous")}
+                {(post.author as unknown as Record<string,unknown>)?.display_name as string ?? t("anonymous")}
               </span>
             </span>
           </div>

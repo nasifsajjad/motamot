@@ -24,12 +24,12 @@ function CommentItem({ comment, postId, onReply }: { comment: Comment; postId: s
     >
       <div className="flex gap-3">
         <div className="w-7 h-7 rounded-full bg-azure-100 dark:bg-azure-900/30 flex items-center justify-center text-azure-600 text-xs font-semibold shrink-0 mt-0.5">
-          {(comment.author as Record<string,unknown>)?.display_name?.[0]?.toUpperCase() ?? "A"}
+          {(comment.author as unknown as Record<string,unknown>)?.display_name?.[0]?.toUpperCase() ?? "A"}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-medium text-ink-700 dark:text-ink-200">
-              {(comment.author as Record<string,unknown>)?.display_name ?? "Anonymous"}
+              {(comment.author as unknown as Record<string,unknown>)?.display_name ?? "Anonymous"}
             </span>
             <span className="text-xs text-ink-400">
               {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
@@ -56,7 +56,7 @@ function CommentItem({ comment, postId, onReply }: { comment: Comment; postId: s
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-xs font-medium text-ink-700 dark:text-ink-200">
-                    {(reply.author as Record<string,unknown>)?.display_name ?? "Anonymous"}
+                    {(reply.author as unknown as Record<string,unknown>)?.display_name ?? "Anonymous"}
                   </span>
                   <span className="text-xs text-ink-400">
                     {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
