@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft, Flag, Share2 } from "lucide-react";
@@ -14,10 +14,16 @@ import { useLang } from "@/hooks/useLang";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthModal } from "@/components/AuthModal";
 import toast from "react-hot-toast";
-import type { Post } from "@/types";
+import type { Post, AuthorSnippet } from "@/types";
 
 const AD_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "";
 const AD_SLOT = process.env.NEXT_PUBLIC_ADSENSE_SLOT ?? "";
+
+function getAuthor(author: Post["author"]): AuthorSnippet {
+  if (!author) return {};
+  if (Array.isArray(author)) return author[0] ?? {};
+  return author;
+}
 
 export function PostPageClient({ post }: { post: Post }) {
   const { t, lang } = useLang();
@@ -26,6 +32,11 @@ export function PostPageClient({ post }: { post: Post }) {
   const [displayBody, setDisplayBody] = useState(post.body);
   const [reportReason, setReportReason] = useState("");
   const [reportOpen, setReportOpen] = useState(false);
+
+  const author = getAuthor(post.author);
+  const authorName = author.displayName ?? author.display_name ?? t("anonymous");
+  const authorAvatar = author.avatarUrl ?? author.avatar_url;
+  const authorInitial = authorName[0]?.toUpperCase() ?? "A";
 
   async function handleReport() {
     if (!user) { setAuthOpen(true); return; }
@@ -59,7 +70,6 @@ export function PostPageClient({ post }: { post: Post }) {
     <>
       <Header />
       <main className="max-w-3xl mx-auto px-4 py-8">
-        {/* Back */}
         <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-ink-400 hover:text-ink-700 dark:hover:text-ink-200 mb-6 transition">
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -94,18 +104,18 @@ export function PostPageClient({ post }: { post: Post }) {
 
           {/* Author */}
           <div className="flex items-center gap-2">
-            {(post.author as unknown as Record<string,unknown>)?.avatar_url ? (
+            {authorAvatar ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={(post.author as unknown as Record<string,unknown>).avatar_url as string} alt="" className="w-7 h-7 rounded-full object-cover" />
+              <img src={authorAvatar} alt="" className="w-7 h-7 rounded-full object-cover" />
             ) : (
               <div className="w-7 h-7 rounded-full bg-azure-600 flex items-center justify-center text-white text-xs font-semibold">
-                {((post.author as unknown as Record<string,unknown>)?.display_name as string)?.[0]?.toUpperCase() ?? "A"}
+                {authorInitial}
               </div>
             )}
             <span className="text-sm text-ink-500">
               {t("by")}{" "}
               <span className="font-medium text-ink-700 dark:text-ink-200">
-                {(post.author as unknown as Record<string,unknown>)?.display_name as string ?? t("anonymous")}
+                {authorName}
               </span>
             </span>
           </div>

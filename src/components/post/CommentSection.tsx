@@ -8,14 +8,23 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLang } from "@/hooks/useLang";
 import { AuthModal } from "@/components/AuthModal";
 import toast from "react-hot-toast";
-import type { Comment } from "@/types";
+import type { Comment, AuthorSnippet } from "@/types";
 
 interface CommentSectionProps {
   postId: string;
 }
 
-function CommentItem({ comment, postId, onReply }: { comment: Comment; postId: string; onReply: () => void }) {
-  const { lang } = useLang();
+function getAuthor(author: Comment["author"]): AuthorSnippet {
+  if (!author) return {};
+  if (Array.isArray(author)) return author[0] ?? {};
+  return author;
+}
+
+function CommentItem({ comment, onReply }: { comment: Comment; postId: string; onReply: () => void }) {
+  const author = getAuthor(comment.author);
+  const authorName = author.displayName ?? author.display_name ?? "Anonymous";
+  const authorInitial = authorName[0]?.toUpperCase() ?? "A";
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -8 }}
@@ -24,12 +33,12 @@ function CommentItem({ comment, postId, onReply }: { comment: Comment; postId: s
     >
       <div className="flex gap-3">
         <div className="w-7 h-7 rounded-full bg-azure-100 dark:bg-azure-900/30 flex items-center justify-center text-azure-600 text-xs font-semibold shrink-0 mt-0.5">
-          {(comment.author as unknown as Record<string,unknown>)?.display_name?.[0]?.toUpperCase() ?? "A"}
+          {authorInitial}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-medium text-ink-700 dark:text-ink-200">
-              {(comment.author as unknown as Record<string,unknown>)?.display_name ?? "Anonymous"}
+              {authorName}
             </span>
             <span className="text-xs text-ink-400">
               {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
@@ -50,24 +59,28 @@ function CommentItem({ comment, postId, onReply }: { comment: Comment; postId: s
       {/* Replies */}
       {comment.replies && comment.replies.length > 0 && (
         <div className="ml-10 mt-3 space-y-3 pl-3 border-l-2 border-ink-100 dark:border-ink-700">
-          {comment.replies.map((reply) => (
-            <div key={reply.id} className="flex gap-3">
-              <CornerDownRight className="w-3.5 h-3.5 text-ink-300 shrink-0 mt-1" />
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs font-medium text-ink-700 dark:text-ink-200">
-                    {(reply.author as unknown as Record<string,unknown>)?.display_name ?? "Anonymous"}
-                  </span>
-                  <span className="text-xs text-ink-400">
-                    {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
-                  </span>
+          {comment.replies.map((reply) => {
+            const replyAuthor = getAuthor(reply.author);
+            const replyAuthorName = replyAuthor.displayName ?? replyAuthor.display_name ?? "Anonymous";
+            return (
+              <div key={reply.id} className="flex gap-3">
+                <CornerDownRight className="w-3.5 h-3.5 text-ink-300 shrink-0 mt-1" />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-xs font-medium text-ink-700 dark:text-ink-200">
+                      {replyAuthorName}
+                    </span>
+                    <span className="text-xs text-ink-400">
+                      {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
+                    </span>
+                  </div>
+                  <p className={`text-sm text-ink-600 dark:text-ink-300 ${reply.language === "bn" ? "font-bangla" : ""}`}>
+                    {reply.body}
+                  </p>
                 </div>
-                <p className={`text-sm text-ink-600 dark:text-ink-300 ${reply.language === "bn" ? "font-bangla" : ""}`}>
-                  {reply.body}
-                </p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </motion.div>
@@ -108,19 +121,25 @@ export function CommentSection({ postId }: CommentSectionProps) {
         return;
       }
       const newComment = await res.json();
+      const newCommentFull: Comment = {
+        ...newComment,
+        authorId: user.id,
+        author: { display_name: user.displayName },
+        createdAt: newComment.created_at ?? new Date().toISOString(),
+        postId,
+        parentCommentId: replyTo,
+        replies: [],
+      };
       if (replyTo) {
         setComments((prev) =>
           prev.map((c) =>
             c.id === replyTo
-              ? { ...c, replies: [...(c.replies ?? []), { ...newComment, author: { display_name: user.displayName }, createdAt: newComment.created_at }] }
+              ? { ...c, replies: [...(c.replies ?? []), newCommentFull] }
               : c
           )
         );
       } else {
-        setComments((prev) => [
-          ...prev,
-          { ...newComment, author: { display_name: user.displayName }, createdAt: newComment.created_at, replies: [] },
-        ]);
+        setComments((prev) => [...prev, newCommentFull]);
       }
       setBody("");
       setReplyTo(null);
@@ -206,4 +225,4 @@ export function CommentSection({ postId }: CommentSectionProps) {
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </section>
   );
-}
+} 

@@ -13,6 +13,15 @@ export interface User {
   createdAt: string;
 }
 
+// Lightweight author shape returned by Supabase joins
+export interface AuthorSnippet {
+  id?: string;
+  display_name?: string;
+  displayName?: string;
+  avatar_url?: string;
+  avatarUrl?: string;
+}
+
 export interface Translation {
   id: string;
   postId?: string;
@@ -31,7 +40,7 @@ export interface Post {
   excerpt: string;
   language: Language;
   authorId: string;
-  author?: User;
+  author?: AuthorSnippet | AuthorSnippet[] | null;
   type: PostType;
   createdAt: string;
   updatedAt: string;
@@ -49,7 +58,7 @@ export interface Comment {
   postId: string;
   parentCommentId: string | null;
   authorId: string;
-  author?: User;
+  author?: AuthorSnippet | AuthorSnippet[] | null;
   body: string;
   language: Language;
   createdAt: string;
